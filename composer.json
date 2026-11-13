@@ -34,5 +34,11 @@
         "branch-alias": {
             "dev-main": "1.0.x-dev"
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.xavier-tezza.fr"
+        }
+    ]
 }
