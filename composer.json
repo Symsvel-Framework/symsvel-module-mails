@@ -37,8 +37,8 @@
     },
     "repositories": [
         {
-            "type": "composer",
-            "url": "https://packages.xavier-tezza.fr"
+            "type": "vcs",
+            "url": "https://github.com/Symsvel-Framework/symsvel-module-settings.git"
         }
     ]
 }
