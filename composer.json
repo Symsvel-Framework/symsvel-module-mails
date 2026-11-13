@@ -6,7 +6,7 @@
     "require": {
         "php": ">=8.4",
         "symfony/framework-bundle": "^8.1",
-        "symsvel-framework/module-settings": "^0.1 || dev-dev"
+        "symsvel-framework/module-settings": "dev-dev"
     },
     "autoload": {
         "psr-4": {
