@@ -1,0 +1,30 @@
+{
+    "manifests": {
+        "symsvel-framework/module-mails": {
+            "manifest": {
+                "bundles": {
+                    "SymSvel\\Module\\Mails\\MailsBundle": [
+                        "all"
+                    ]
+                },
+                "copy-from-recipe": {
+                    "config/": "%CONFIG_DIR%/"
+                }
+            },
+            "files": {
+                "config/routes/mails.yaml": {
+                    "contents": [
+                        "mails:",
+                        "    resource:",
+                        "        path: '@MailsBundle/src/Controller/'",
+                        "        namespace: SymSvel\\Module\\Mails\\Controller",
+                        "    type: attribute",
+                        ""
+                    ],
+                    "executable": false
+                }
+            },
+            "ref": "REPLACE_WITH_RECIPE_COMMIT_SHA"
+        }
+    }
+}
