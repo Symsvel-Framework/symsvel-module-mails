@@ -15,6 +15,7 @@ final class MailsBundle extends AbstractBundle
     {
         $builder->register(MailsSettingDefinitionProvider::class, MailsSettingDefinitionProvider::class)
             ->setAutowired(true)
-            ->setAutoconfigured(true);
+            ->setAutoconfigured(true)
+            ->addTag('symsvel.settings.definition_provider');
     }
 }
