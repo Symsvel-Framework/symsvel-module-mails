@@ -19,7 +19,7 @@ final class MailsBundleTest extends TestCase
     public function testRegistersTaggedSettingsProvider(): void
     {
         $builder = new ContainerBuilder();
-        $configurator = (new \\ReflectionClass(ContainerConfigurator::class))->newInstanceWithoutConstructor();
+        $configurator = (new \ReflectionClass(ContainerConfigurator::class))->newInstanceWithoutConstructor();
         (new MailsBundle())->loadExtension([], $configurator, $builder);
 
         self::assertTrue($builder->hasDefinition(MailsSettingDefinitionProvider::class));
