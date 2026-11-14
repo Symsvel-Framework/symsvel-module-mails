@@ -31,3 +31,7 @@ Le test `MailsSettingDefinitionProviderTest::testRealProviderProducesCanonicalVa
 ## Authentification des dépendances privées en CI
 
 La QA du module Mails installe `symsvel-framework/module-settings` depuis le dépôt GitHub privé. Le workflow `.github/workflows/qa.yml` lit le secret d'organisation `SYMSVEL_READ_TOKEN` et transmet temporairement ses droits à Composer via la variable d'environnement `COMPOSER_AUTH` (`github-oauth.github.com`). Aucun jeton n'est écrit dans `composer.json` ni dans un fichier versionné. Le secret doit être accessible au dépôt Mails et autorisé à lire Settings ; si ce n'est pas le cas, l'installation échoue explicitement. Le résultat de la CI reste à confirmer.
+
+## Découverte des paramètres Settings
+
+`MailsBundle::loadExtension()` enregistre `MailsSettingDefinitionProvider` avec le tag explicite `symsvel.settings.definition_provider`. L'autoconfiguration reste activée mais ne constitue pas l'unique mécanisme d'enregistrement. Le compiler pass du module Settings associe ce provider au module Composer vérifié, puis `symsvel:settings:sync` publie les métadonnées dans `.symsvel/modules-params.json` et crée les entrées BDD sans initialiser de valeurs. Le test `MailsBundleTest::testRegistersTaggedSettingsProvider` protège cette déclaration. Vérifier en crash-test réel sur XT après installation/mise à jour : trois définitions Mails dans l'inventaire et en BDD ; CI et crash-test restent à confirmer.
