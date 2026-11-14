@@ -23,3 +23,7 @@ L'interface `SettingDefinitionProviderInterface` est actuellement disponible sur
 ### Visibilité des tests ignorés
 
 La CI affiche les raisons des tests PHPUnit ignorés avec `--display-skipped` (directement ou via le script Composer QA). Un test ignoré ne devient pas bloquant pour autant : les motifs sont examinés pour distinguer prérequis absents et couverture manquante.
+
+## Vérification de l'intégration Settings
+
+Le test `MailsSettingDefinitionProviderTest::testRealProviderProducesCanonicalValueFreeMailsInventory` utilise le vrai `MailsSettingDefinitionProvider`, le registre Settings et `SettingKeyQualifier` avec le propriétaire vérifié `mails`. Il vérifie la production des clés `mails.sender_email`, `mails.sender_name`, `mails.transport`, leurs métadonnées et l'absence de valeurs dans l'inventaire. Ce test ne démarre pas Symfony et ne teste pas encore la synchronisation en base via Composer : ce parcours complet reste à valider sur le projet crash-test.
