@@ -27,3 +27,7 @@ La CI affiche les raisons des tests PHPUnit ignorés avec `--display-skipped` (d
 ## Vérification de l'intégration Settings
 
 Le test `MailsSettingDefinitionProviderTest::testRealProviderProducesCanonicalValueFreeMailsInventory` utilise le vrai `MailsSettingDefinitionProvider`, le registre Settings et `SettingKeyQualifier` avec le propriétaire vérifié `mails`. Il vérifie la production des clés `mails.sender_email`, `mails.sender_name`, `mails.transport`, leurs métadonnées et l'absence de valeurs dans l'inventaire. Ce test ne démarre pas Symfony et ne teste pas encore la synchronisation en base via Composer : ce parcours complet reste à valider sur le projet crash-test.
+
+## Authentification des dépendances privées en CI
+
+La QA du module Mails installe `symsvel-framework/module-settings` depuis le dépôt GitHub privé. Le workflow `.github/workflows/qa.yml` lit le secret d'organisation `SYMSVEL_READ_TOKEN` et transmet temporairement ses droits à Composer via la variable d'environnement `COMPOSER_AUTH` (`github-oauth.github.com`). Aucun jeton n'est écrit dans `composer.json` ni dans un fichier versionné. Le secret doit être accessible au dépôt Mails et autorisé à lire Settings ; si ce n'est pas le cas, l'installation échoue explicitement. Le résultat de la CI reste à confirmer.
