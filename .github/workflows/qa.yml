@@ -12,7 +12,13 @@ jobs:
         run: |
           php -v
           php -r 'if (PHP_VERSION_ID < 80400 || PHP_VERSION_ID >= 80500) { exit(1); }'
-      - run: composer install --no-interaction --prefer-dist
+      - name: Install private Composer dependencies
+        env:
+          SYMSVEL_READ_TOKEN: ${{ secrets.SYMSVEL_READ_TOKEN }}
+        run: |
+          test -n "$SYMSVEL_READ_TOKEN"
+          export COMPOSER_AUTH="$(php -r 'echo json_encode(["github-oauth" => ["github.com" => getenv("SYMSVEL_READ_TOKEN")]], JSON_THROW_ON_ERROR);')"
+          composer install --no-interaction --prefer-dist --no-progress
       - name: Lint PHP sources and tests
         run: find back/src back/tests -type f -name '*.php' -print0 | xargs -0 -r -n 1 php -l
       - run: composer qa
