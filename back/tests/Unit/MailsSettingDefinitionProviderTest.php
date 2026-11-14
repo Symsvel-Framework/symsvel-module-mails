@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use SymSvel\Module\Mails\Service\MailsSettingDefinitionProvider;
 use SymSvel\Module\Settings\Service\SettingDefinition;
 use SymSvel\Module\Settings\Service\SettingDefinitionProviderInterface;
+use SymSvel\Module\Settings\Service\SettingInventory;
+use SymSvel\Module\Settings\Service\SettingKeyQualifier;
+use SymSvel\Module\Settings\Service\SettingRegistry;
 
 final class MailsSettingDefinitionProviderTest extends TestCase
 {
@@ -32,4 +35,22 @@ final class MailsSettingDefinitionProviderTest extends TestCase
             self::assertFalse($definition->required);
         }
     }
+    public function testRealProviderProducesCanonicalValueFreeMailsInventory(): void
+    {
+        $registry = new SettingRegistry([]);
+        $registry->registerOwned(new MailsSettingDefinitionProvider(), 'mails', new SettingKeyQualifier());
+        $inventory = (new SettingInventory())->fromRegistry($registry);
+
+        self::assertSame(['mails.sender_email', 'mails.sender_name', 'mails.transport'], array_map(
+            static fn (SettingDefinition $definition): string => $definition->key,
+            $registry->all(),
+        ));
+        self::assertSame(['sender_email', 'sender_name', 'transport'], array_keys($inventory['modules']['mails']));
+        self::assertSame('email', $inventory['modules']['mails']['sender_email']['type']);
+        foreach ($inventory['modules']['mails'] as $metadata) {
+            self::assertArrayNotHasKey('value', $metadata);
+            self::assertFalse($metadata['secret']);
+        }
+    }
+
 }
