@@ -53,3 +53,7 @@ Pour les tests locaux avec Mailpit : `MAILER_DSN=smtp://127.0.0.1:1025`. Les val
 ## Correctif de dépendance CI
 
 Le module déclare explicitement `symfony/mailer:^8.1` dans ses dépendances Composer, en plus de Twig. Les tests unitaires de `MailSender` sont exécutés dans le dépôt Mails isolé, où la présence de Symfony Mailer dans le squelette Back ne suffit pas. Ce correctif résout la classe `Symfony\\Component\\Mailer\\MailerInterface` absente lors du chargement des tests ; la nouvelle CI doit encore confirmer l'exécution complète.
+
+## Expéditeur transactionnel depuis Settings (15/11/2026)
+
+`ConfiguredMailSender` est un adaptateur de `MailSender` qui lit à chaque envoi les clés qualifiées `mails.sender_email` et `mails.sender_name` via `SettingManager`. L'absence d'adresse expéditrice valide déclenche une `LogicException` avant tout appel au transport ; aucune adresse de repli n'est inventée. `MailsBundle` enregistre ce service, sans modifier `MailSender::send()` ni le choix du transport `MAILER_DSN`. Les tests vérifient la transmission des adresses et du nom, ainsi que l'absence d'envoi si la configuration est incomplète. CI et crash-test Mailpit à confirmer. Le module Auth doit encore raccorder ce service au déclenchement de récupération et appliquer les protections anti-abus.
