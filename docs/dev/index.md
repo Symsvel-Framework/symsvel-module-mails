@@ -49,3 +49,7 @@ Chaque déclaration associe une langue à trois chemins Twig (`subject`, `html`,
 `MailSender` reçoit un `RenderedMail`, une adresse destinataire et l'identité expéditrice. Il crée un `Symfony\\Component\\Mime\\Email` avec sujet, corps HTML et corps texte puis délègue à `MailerInterface`. Le module ne choisit ni n'instancie de transport : Symfony Mailer utilise `MAILER_DSN` du backend. Les adresses sont validées avant l'appel au transport ; un test unitaire couvre la composition du message et le rejet d'une adresse invalide.
 
 Pour les tests locaux avec Mailpit : `MAILER_DSN=smtp://127.0.0.1:1025`. Les valeurs expéditeur pourront provenir des paramètres `mails.sender_email` et `mails.sender_name` déclarés dans Settings ; cette lecture n'est pas encore raccordée au service d'envoi. L'absence de transport configuré ne doit pas être masquée. Le transport Brevo reste hors périmètre. Aucun endpoint Auth ni template Auth n'est encore branché. La CI et les CT doivent être confirmés avant validation.
+
+## Correctif de dépendance CI
+
+Le module déclare explicitement `symfony/mailer:^8.1` dans ses dépendances Composer, en plus de Twig. Les tests unitaires de `MailSender` sont exécutés dans le dépôt Mails isolé, où la présence de Symfony Mailer dans le squelette Back ne suffit pas. Ce correctif résout la classe `Symfony\\Component\\Mailer\\MailerInterface` absente lors du chargement des tests ; la nouvelle CI doit encore confirmer l'exécution complète.
