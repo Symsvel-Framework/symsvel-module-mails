@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace SymSvel\Module\Mails\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMSetup;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\Persistence\ManagerRegistry;
 use SymSvel\Module\Settings\Entity\Setting;
 use SymSvel\Module\Settings\Repository\SettingRepository;
 use SymSvel\Module\Settings\Service\SettingRegistry;
@@ -53,7 +57,22 @@ final class ConfiguredMailSenderTest extends TestCase
     {
         $registry = new SettingRegistry([]);
         $registry->registerOwned(new MailsSettingDefinitionProvider(), 'mails', new SettingKeyQualifier());
-        $repository = $this->createMock(SettingRepository::class);
+        if (!extension_loaded('pdo_sqlite')) {
+            self::markTestSkipped('pdo_sqlite is required for the configured mail sender test.');
+        }
+        $config = ORMSetup::createAttributeMetadataConfiguration(
+            paths: [dirname((new \ReflectionClass(Setting::class))->getFileName())],
+            isDevMode: true,
+        );
+        $config->enableNativeLazyObjects(true);
+        $entityManager = new EntityManager(
+            DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]),
+            $config,
+        );
+        (new SchemaTool($entityManager))->createSchema([$entityManager->getClassMetadata(Setting::class)]);
+        $doctrineRegistry = $this->createMock(ManagerRegistry::class);
+        $doctrineRegistry->method('getManagerForClass')->with(Setting::class)->willReturn($entityManager);
+        $repository = new SettingRepository($doctrineRegistry);
         $values = [];
         foreach (['mails.sender_email' => $email, 'mails.sender_name' => $name] as $key => $value) {
             if ($value !== null) {
@@ -62,13 +81,15 @@ final class ConfiguredMailSenderTest extends TestCase
                 $values[$key] = $setting;
             }
         }
-        $repository->method('findOneBy')->willReturnCallback(
-            static fn (array $criteria): ?Setting => $values[$criteria['key']] ?? null,
-        );
+        foreach ($values as $setting) {
+            $entityManager->persist($setting);
+        }
+        $entityManager->flush();
+        $entityManager->clear();
         return new SettingManager(
             $registry,
             $repository,
-            $this->createMock(EntityManagerInterface::class),
+            $entityManager,
             new SettingSecretCipher('unit-test-secret'),
         );
     }
