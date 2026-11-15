@@ -6,6 +6,7 @@
     "require": {
         "php": ">=8.4",
         "symfony/framework-bundle": "^8.1",
+        "twig/twig": "^3.0",
         "symsvel-framework/module-settings": "dev-dev"
     },
     "autoload": {
