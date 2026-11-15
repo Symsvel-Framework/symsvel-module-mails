@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SymSvel\Module\Mails\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\RawMessage;
 use Symfony\Component\Mime\Email;
