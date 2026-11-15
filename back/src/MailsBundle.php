@@ -11,6 +11,7 @@ use SymSvel\Module\Mails\Service\MailsSettingDefinitionProvider;
 use SymSvel\Module\Mails\Mail\MailTemplateRegistry;
 use SymSvel\Module\Mails\Mail\RegisteredMailRenderer;
 use SymSvel\Module\Mails\Mail\MailSender;
+use SymSvel\Module\Mails\Mail\ConfiguredMailSender;
 
 final class MailsBundle extends AbstractBundle
 {
@@ -25,6 +26,8 @@ final class MailsBundle extends AbstractBundle
         $builder->register(RegisteredMailRenderer::class, RegisteredMailRenderer::class)
             ->setAutowired(true);
         $builder->register(MailSender::class, MailSender::class)
+            ->setAutowired(true);
+        $builder->register(ConfiguredMailSender::class, ConfiguredMailSender::class)
             ->setAutowired(true);
     }
 }
