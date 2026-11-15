@@ -61,3 +61,7 @@ Le module déclare explicitement `symfony/mailer:^8.1` dans ses dépendances Com
 ### Correctif des tests de l'expéditeur configuré (15/11/2026)
 
 `SettingManager` est `final` et ne peut pas être doublé par PHPUnit. Les deux tests de `ConfiguredMailSender` instancient désormais le vrai `SettingManager` et le vrai registre qualifié des définitions Mails, avec un `SettingRepository` simulé et des entités `Setting` en mémoire. Aucun changement du contrat ni du code de production. Correction à confirmer en CI.
+
+### Correctif CI : repository Settings final (15/11/2026)
+
+La première correction des tests restait insuffisante : `SettingRepository` est également `final`. Le banc `ConfiguredMailSenderTest` reprend maintenant le montage déjà validé dans `SettingManagerPersistenceTest` du module Settings : `EntityManager` réel, SQLite en mémoire, `SchemaTool`, `SettingRepository` réel et `ManagerRegistry` simulé. Les valeurs sont persistées puis relues après `clear()`. Aucun changement de production ; CI à confirmer. Les tests sont ignorés explicitement si `pdo_sqlite` est indisponible.
