@@ -57,3 +57,7 @@ Le module déclare explicitement `symfony/mailer:^8.1` dans ses dépendances Com
 ## Expéditeur transactionnel depuis Settings (15/11/2026)
 
 `ConfiguredMailSender` est un adaptateur de `MailSender` qui lit à chaque envoi les clés qualifiées `mails.sender_email` et `mails.sender_name` via `SettingManager`. L'absence d'adresse expéditrice valide déclenche une `LogicException` avant tout appel au transport ; aucune adresse de repli n'est inventée. `MailsBundle` enregistre ce service, sans modifier `MailSender::send()` ni le choix du transport `MAILER_DSN`. Les tests vérifient la transmission des adresses et du nom, ainsi que l'absence d'envoi si la configuration est incomplète. CI et crash-test Mailpit à confirmer. Le module Auth doit encore raccorder ce service au déclenchement de récupération et appliquer les protections anti-abus.
+
+### Correctif des tests de l'expéditeur configuré (15/11/2026)
+
+`SettingManager` est `final` et ne peut pas être doublé par PHPUnit. Les deux tests de `ConfiguredMailSender` instancient désormais le vrai `SettingManager` et le vrai registre qualifié des définitions Mails, avec un `SettingRepository` simulé et des entités `Setting` en mémoire. Aucun changement du contrat ni du code de production. Correction à confirmer en CI.
