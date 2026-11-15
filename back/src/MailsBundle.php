@@ -10,6 +10,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use SymSvel\Module\Mails\Service\MailsSettingDefinitionProvider;
 use SymSvel\Module\Mails\Mail\MailTemplateRegistry;
 use SymSvel\Module\Mails\Mail\RegisteredMailRenderer;
+use SymSvel\Module\Mails\Mail\MailSender;
 
 final class MailsBundle extends AbstractBundle
 {
@@ -22,6 +23,8 @@ final class MailsBundle extends AbstractBundle
         $builder->register(MailTemplateRegistry::class, MailTemplateRegistry::class)
             ->setAutowired(true);
         $builder->register(RegisteredMailRenderer::class, RegisteredMailRenderer::class)
+            ->setAutowired(true);
+        $builder->register(MailSender::class, MailSender::class)
             ->setAutowired(true);
     }
 }
