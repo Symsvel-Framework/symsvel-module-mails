@@ -113,3 +113,12 @@ Un choix retiré n'est pas remplacé silencieusement.
 Tests : catalogue sans découverte système, définition Settings,
 sélection X-Transport, absence de transport actif, compatibilité expéditeur,
 compilation BO Settings et crash-test SMTP local XT.
+
+
+### Couverture des providers et absence de sondage (16/11/2026)
+
+`MailTransportCatalogTest` valide que les cinq options natives existent
+sans qu'aucun serveur de test soit installé, qu'un module externe peut
+déclarer un nom supplémentaire, et que les doublons ou noms invalides
+sont refusés. L'interface d'extension ne permet pas de déclarer un DSN
+par le navigateur BO. Le statut réseau des serveurs n'est jamais demandé.
