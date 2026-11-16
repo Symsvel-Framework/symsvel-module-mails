@@ -65,3 +65,7 @@ Le module déclare explicitement `symfony/mailer:^8.1` dans ses dépendances Com
 ### Correctif CI : repository Settings final (15/11/2026)
 
 La première correction des tests restait insuffisante : `SettingRepository` est également `final`. Le banc `ConfiguredMailSenderTest` reprend maintenant le montage déjà validé dans `SettingManagerPersistenceTest` du module Settings : `EntityManager` réel, SQLite en mémoire, `SchemaTool`, `SettingRepository` réel et `ManagerRegistry` simulé. Les valeurs sont persistées puis relues après `clear()`. Aucun changement de production ; CI à confirmer. Les tests sont ignorés explicitement si `pdo_sqlite` est indisponible.
+
+## Résolution Composer du contrat ACLs dans les tests isolés (16/11/2026)
+
+Depuis que Settings expose des endpoints BO protégés par `BoAccessGate`, son paquet dépend de `module-acls:dev-dev`. Composer n'utilise pas les repositories VCS des dépendances transitives et n'autorise pas de branche instable sans contrainte racine explicite lorsque `minimum-stability` reste stable. Le `composer.json` de Mails ajoute donc **uniquement pour ses propres tests** une dépendance `require-dev` sur ACLs et son dépôt VCS officiel. Aucun nouvel import métier d'ACLs n'est ajouté au runtime Mails. Le workflow vérifie le droit de lecture du dépôt privé supplémentaire. Le projet utilisateur continue de résoudre ses modules natifs via le manifeste Back et le Tooling, sans baisse générale de stabilité. CI à confirmer.
