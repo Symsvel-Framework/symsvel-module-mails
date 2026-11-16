@@ -6,12 +6,17 @@ namespace SymSvel\Module\Mails\Service;
 
 use SymSvel\Module\Settings\Service\SettingDefinition;
 use SymSvel\Module\Settings\Service\SettingDefinitionProviderInterface;
+use SymSvel\Module\Mails\Mail\MailTransportCatalog;
 
 /**
  * Mails owns its configuration declarations; Settings owns persistence.
  */
 final class MailsSettingDefinitionProvider implements SettingDefinitionProviderInterface
 {
+    public function __construct(private ?MailTransportCatalog $transports = null)
+    {
+    }
+
     /** @return iterable<SettingDefinition> */
     public function definitions(): iterable
     {
@@ -32,7 +37,9 @@ final class MailsSettingDefinitionProvider implements SettingDefinitionProviderI
             key: 'transport',
             label: 'Transport des e-mails',
             group: 'mail',
-            description: 'Identifiant du transport sélectionné pour les envois.',
+            type: 'choice',
+            choices: ($this->transports ?? new MailTransportCatalog())->choices(),
+            description: 'Un seul transport actif. Liste déclarative : le service et ses accès doivent être configurés par le développeur.',
         );
     }
 }

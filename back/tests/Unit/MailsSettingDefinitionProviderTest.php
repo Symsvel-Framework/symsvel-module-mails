@@ -23,10 +23,12 @@ final class MailsSettingDefinitionProviderTest extends TestCase
             static fn (SettingDefinition $definition): string => $definition->key,
             $definitions,
         ));
-        self::assertSame(['email', 'string', 'string'], array_map(
+        self::assertSame(['email', 'string', 'choice'], array_map(
             static fn (SettingDefinition $definition): string => $definition->type,
             $definitions,
         ));
+        self::assertSame(['smtp', 'mailpit', 'mailhog', 'smtp4dev', 'mailtrap'],
+            array_keys($definitions[2]->choices));
         foreach ($definitions as $definition) {
             self::assertSame('mail', $definition->group);
             self::assertFalse($definition->public);
@@ -47,6 +49,8 @@ final class MailsSettingDefinitionProviderTest extends TestCase
         ));
         self::assertSame(['sender_email', 'sender_name', 'transport'], array_keys($inventory['modules']['mails']));
         self::assertSame('email', $inventory['modules']['mails']['sender_email']['type']);
+        self::assertSame('choice', $inventory['modules']['mails']['transport']['type']);
+        self::assertArrayHasKey('mailpit', $inventory['modules']['mails']['transport']['choices']);
         foreach ($inventory['modules']['mails'] as $metadata) {
             self::assertArrayNotHasKey('value', $metadata);
             self::assertFalse($metadata['secret']);

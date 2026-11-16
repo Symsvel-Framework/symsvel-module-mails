@@ -28,13 +28,14 @@ final class ConfiguredMailSenderTest extends TestCase
 {
     public function testUsesConfiguredSenderAndName(): void
     {
-        $settings = $this->settings('sender@example.test', 'SymSvel');
+        $settings = $this->settings('sender@example.test', 'SymSvel', 'mailpit');
         $mailer = $this->createMock(MailerInterface::class);
         $mailer->expects(self::once())->method('send')->with(self::callback(static function (RawMessage $message): bool {
             return $message instanceof Email
                 && $message->getFrom()[0]->getAddress() === 'sender@example.test'
                 && $message->getFrom()[0]->getName() === 'SymSvel'
-                && $message->getTo()[0]->getAddress() === 'recipient@example.test';
+                && $message->getTo()[0]->getAddress() === 'recipient@example.test'
+                && $message->getHeaders()->get('X-Transport')?->getBodyAsString() === 'mailpit';
         }));
         (new ConfiguredMailSender(new MailSender($mailer), $settings))->send(
             new RenderedMail('Reset', '<p>Reset</p>', 'Reset'),
@@ -53,7 +54,31 @@ final class ConfiguredMailSenderTest extends TestCase
             'recipient@example.test',
         );
     }
-    private function settings(?string $email, ?string $name): SettingManager
+    public function testMissingTransportFailsWithoutSending(): void
+    {
+        $settings = $this->settings('sender@example.test', 'SymSvel', null);
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::never())->method('send');
+        $this->expectException(\LogicException::class);
+        (new ConfiguredMailSender(new MailSender($mailer), $settings))->send(
+            new RenderedMail('Test', '<p>Test</p>', 'Test'), 'recipient@example.test',
+        );
+    }
+
+    public function testSelectedTransportDoesNotProbeLocalServices(): void
+    {
+        $settings = $this->settings('sender@example.test', 'SymSvel', 'smtp4dev');
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::once())->method('send')->with(self::callback(
+            static fn (RawMessage $message): bool => $message instanceof Email
+                && $message->getHeaders()->get('X-Transport')?->getBodyAsString() === 'smtp4dev'
+        ));
+        (new ConfiguredMailSender(new MailSender($mailer), $settings))->send(
+            new RenderedMail('Test', '<p>Test</p>', 'Test'), 'recipient@example.test',
+        );
+    }
+
+    private function settings(?string $email, ?string $name, ?string $transport = null): SettingManager
     {
         $registry = new SettingRegistry([]);
         $registry->registerOwned(new MailsSettingDefinitionProvider(), 'mails', new SettingKeyQualifier());
@@ -74,7 +99,7 @@ final class ConfiguredMailSenderTest extends TestCase
         $doctrineRegistry->method('getManagerForClass')->with(Setting::class)->willReturn($entityManager);
         $repository = new SettingRepository($doctrineRegistry);
         $values = [];
-        foreach (['mails.sender_email' => $email, 'mails.sender_name' => $name] as $key => $value) {
+        foreach (['mails.sender_email' => $email, 'mails.sender_name' => $name, 'mails.transport' => $transport] as $key => $value) {
             if ($value !== null) {
                 $setting = new Setting($key);
                 $setting->setValue($value);

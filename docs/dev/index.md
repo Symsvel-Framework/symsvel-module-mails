@@ -69,3 +69,47 @@ La première correction des tests restait insuffisante : `SettingRepository` est
 ## Résolution Composer du contrat ACLs dans les tests isolés (16/11/2026)
 
 Depuis que Settings expose des endpoints BO protégés par `BoAccessGate`, son paquet dépend de `module-acls:dev-dev`. Composer n'utilise pas les repositories VCS des dépendances transitives et n'autorise pas de branche instable sans contrainte racine explicite lorsque `minimum-stability` reste stable. Le `composer.json` de Mails ajoute donc **uniquement pour ses propres tests** une dépendance `require-dev` sur ACLs et son dépôt VCS officiel. Aucun nouvel import métier d'ACLs n'est ajouté au runtime Mails. Le workflow vérifie le droit de lecture du dépôt privé supplémentaire. Le projet utilisateur continue de résoudre ses modules natifs via le manifeste Back et le Tooling, sans baisse générale de stabilité. CI à confirmer.
+
+
+## Transports nommés de Symfony et choix déclaratif (16/11/2026)
+
+Le paramètre `mails.transport` est désormais de type `choice` dans
+Settings. `MailTransportCatalog` déclare **statiquement** les choix natifs
+`smtp`, `mailpit`, `mailhog`, `smtp4dev` et `mailtrap`. Il n'inspecte
+pas le poste, ne sonde aucun port et n'installe **aucun** de ces logiciels.
+Le développeur est seul responsable de l'installation, du démarrage et
+de la configuration du serveur qu'il sélectionne. Une configuration
+inaccessible produit l'erreur normale de Symfony Mailer au moment de
+l'envoi. Il n'y a aucun fallback vers un autre transport.
+
+Les transports actifs sont sélectionnés par un `X-Transport` Symfony
+éphémère inséré dans `MailSender` après lecture de `mails.transport`
+par `ConfiguredMailSender`. Symfony retire ce header à l'envoi. Un seul
+transport est utilisé par message. Aucune réécriture runtime de
+`.env.local` ; aucune dépendance à un compte Brevo/Mailjet pour les tests
+locaux. La valeur active est stockée en base par Settings et contrôlée
+à l'enregistrement. Le choix vide provoque une erreur explicite avant
+l'envoi ; le paramètre reste facultatif pendant le Setup.
+
+Le Back déclare les transports nommés sous `framework.mailer.transports`.
+Les transports locaux par défaut utilisent l'interface loopback SMTP :
+Mailpit et MailHog sur `127.0.0.1:1025`, smtp4dev sur `127.0.0.1:25`.
+Ces ports sont modifiables par configuration Symfony et ne préjugent
+pas des ports réellement utilisés en Docker/CI. `smtp` utilise
+`MAILER_DSN`. `mailtrap` utilise `MAILTRAP_DSN` ; l'exemple neutre
+sans identifiants doit être remplacé par les secrets du compte concerné.
+
+### Ajout de modules de transport tiers
+
+Un module installé peut déclarer un provider implémentant
+`MailTransportProviderInterface`, tagué
+`symsvel.mails.transport_provider`. Le catalogue rejette les doublons et
+identifiants malformés ; il fusionne les seuls providers **effectivement
+chargés** avec les choix natifs. Le module fournisseur est responsable
+de sa déclaration de transport nommé dans Symfony. Il ne suffit pas
+qu'une option soit présente pour déclarer un serveur disponible.
+Un choix retiré n'est pas remplacé silencieusement.
+
+Tests : catalogue sans découverte système, définition Settings,
+sélection X-Transport, absence de transport actif, compatibilité expéditeur,
+compilation BO Settings et crash-test SMTP local XT.

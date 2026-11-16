@@ -7,6 +7,7 @@ namespace SymSvel\Module\Mails\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use SymSvel\Module\Mails\MailsBundle;
 use SymSvel\Module\Mails\Service\MailsSettingDefinitionProvider;
+use SymSvel\Module\Mails\Mail\MailTransportCatalog;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -22,6 +23,7 @@ final class MailsBundleTest extends TestCase
         $configurator = (new \ReflectionClass(ContainerConfigurator::class))->newInstanceWithoutConstructor();
         (new MailsBundle())->loadExtension([], $configurator, $builder);
 
+        self::assertTrue($builder->hasDefinition(MailTransportCatalog::class));
         self::assertTrue($builder->hasDefinition(MailsSettingDefinitionProvider::class));
         $definition = $builder->getDefinition(MailsSettingDefinitionProvider::class);
         self::assertTrue($definition->isAutowired());
