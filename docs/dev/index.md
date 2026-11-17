@@ -122,3 +122,10 @@ sans qu'aucun serveur de test soit installé, qu'un module externe peut
 déclarer un nom supplémentaire, et que les doublons ou noms invalides
 sont refusés. L'interface d'extension ne permet pas de déclarer un DSN
 par le navigateur BO. Le statut réseau des serveurs n'est jamais demandé.
+
+
+## Fournisseur optionnel Brevo (17/11/2026)
+
+Le module externe `symsvel-framework/module-brevo` dispose désormais d'une implémentation sur sa branche `dev`. Il implémente `MailTransportProviderInterface` et publie le choix nommé `brevo` dans `MailTransportCatalog`, sans modifier le catalogue natif ni les transports SMTP existants. Son bundle configure `framework.mailer.transports.brevo` et une factory Symfony dédiée qui récupère `brevo.api_key` depuis Settings pour déléguer au bridge officiel `symfony/brevo-mailer`. Les paramètres `mails.sender_email`, `mails.sender_name` et `mails.transport` restent entièrement gérés par Mails.
+
+Ce fournisseur n'est **pas automatiquement installé** : le choix n'apparaît qu'une fois le module et sa recette chargés ; la publication de sa recette Flex est préparée sur `symsvel-recipes/dev` mais pas encore déployée. Le module Brevo n'effectue aucun sondage réseau ni fallback vers SMTP ou Mailpit. L'envoi demeure synchrone selon la configuration Messenger du Back. La CI du dépôt Brevo est verte ; compilation réelle des bundles et crash-test local utilisateur restent à réaliser. Cette note actualise les mentions historiques « Brevo futur/hors périmètre » figurant plus haut : elles décrivaient l'état du module Mails avant l'existence du provider optionnel, et non une restriction définitive.
