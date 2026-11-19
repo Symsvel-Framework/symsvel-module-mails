@@ -129,3 +129,16 @@ par le navigateur BO. Le statut réseau des serveurs n'est jamais demandé.
 Le module externe `symsvel-framework/module-brevo` dispose désormais d'une implémentation sur sa branche `dev`. Il implémente `MailTransportProviderInterface` et publie le choix nommé `brevo` dans `MailTransportCatalog`, sans modifier le catalogue natif ni les transports SMTP existants. Son bundle configure `framework.mailer.transports.brevo` et une factory Symfony dédiée qui récupère `brevo.api_key` depuis Settings pour déléguer au bridge officiel `symfony/brevo-mailer`. Les paramètres `mails.sender_email`, `mails.sender_name` et `mails.transport` restent entièrement gérés par Mails.
 
 Ce fournisseur n'est **pas automatiquement installé** : le choix n'apparaît qu'une fois le module et sa recette chargés ; la publication de sa recette Flex est préparée sur `symsvel-recipes/dev` mais pas encore déployée. Le module Brevo n'effectue aucun sondage réseau ni fallback vers SMTP ou Mailpit. L'envoi demeure synchrone selon la configuration Messenger du Back. La CI du dépôt Brevo est verte ; compilation réelle des bundles et crash-test local utilisateur restent à réaliser. Cette note actualise les mentions historiques « Brevo futur/hors périmètre » figurant plus haut : elles décrivaient l'état du module Mails avant l'existence du provider optionnel, et non une restriction définitive.
+
+## Contrat des avertissements de configuration (19/11/2026)
+
+`MailsSettingDefinitionProvider` marque `sender_email` et `transport`
+`required: true, blocking: false`. Le premier paramètre exige un e-mail
+valide, le second une option du catalogue. `sender_name` demeure facultatif.
+`SettingOnboarding` peut les classer dans `pending`, sans bloquer le Setup.
+L’export `GET /apibo/settings` contient leurs indicateurs `required` et
+`configured`, que `boAlerts` consomme déjà. Le shell garde les ACL
+et rafraîchit les alertes sur `symsvel:alerts-changed`.
+
+Les tests des définitions vérifient ce contrat ; validation restante en CI et
+CT XT avec paramètres manquants puis renseignés.

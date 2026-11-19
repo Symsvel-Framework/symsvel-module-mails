@@ -34,9 +34,20 @@ final class MailsSettingDefinitionProviderTest extends TestCase
             self::assertFalse($definition->public);
             self::assertFalse($definition->secret);
             self::assertFalse($definition->blocking);
-            self::assertFalse($definition->required);
+            self::assertSame(in_array($definition->key, ['sender_email', 'transport'], true), $definition->required);
         }
     }
+    public function testOnlyOperationalMailFieldsRaiseNonBlockingConfigurationAlerts(): void
+    {
+        $definitions = iterator_to_array((new MailsSettingDefinitionProvider())->definitions());
+        self::assertSame(['sender_email', 'transport'], array_values(array_map(
+            static fn (SettingDefinition $setting): string => $setting->key,
+            array_filter($definitions, static fn (SettingDefinition $setting): bool => $setting->required),
+        )));
+        self::assertFalse($definitions[0]->blocking);
+        self::assertFalse($definitions[2]->blocking);
+    }
+
     public function testRealProviderProducesCanonicalValueFreeMailsInventory(): void
     {
         $registry = new SettingRegistry([]);

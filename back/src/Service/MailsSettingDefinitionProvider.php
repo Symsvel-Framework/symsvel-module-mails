@@ -25,6 +25,7 @@ final class MailsSettingDefinitionProvider implements SettingDefinitionProviderI
             label: 'Adresse e-mail expéditrice',
             group: 'mail',
             type: 'email',
+            required: true,
             description: 'Adresse utilisée comme expéditeur des messages.',
         );
         yield new SettingDefinition(
@@ -38,6 +39,7 @@ final class MailsSettingDefinitionProvider implements SettingDefinitionProviderI
             label: 'Transport des e-mails',
             group: 'mail',
             type: 'choice',
+            required: true,
             choices: ($this->transports ?? new MailTransportCatalog())->choices(),
             description: 'Un seul transport actif. Liste déclarative : le service et ses accès doivent être configurés par le développeur.',
         );

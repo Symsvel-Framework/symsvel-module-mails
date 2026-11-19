@@ -24,3 +24,18 @@ ne sont jamais exposés dans le dropdown.
 Pour un CT local, lancer soi-même Mailpit, choisir **Mailpit** dans
 Settings et définir l'expéditeur. Le port local par défaut est
 `127.0.0.1:1025`, configurable dans Symfony.
+
+## Alertes de configuration Mails (19/11/2026)
+
+L’adresse e-mail expéditrice (`mails.sender_email`) et le choix du transport
+(`mails.transport`) sont désormais marqués **requis pour utiliser l’envoi
+d’e-mails**, mais restent **non bloquants pour installer SymSvel**. Le nom
+affiché de l’expéditeur demeure facultatif. Le système d’alertes existant
+de Settings affiche dans la barre supérieure du BO une alerte pour chaque
+paramètre requis non renseigné, puis actualise le compteur après validation
+sans recharger la page.
+
+Un transport déclaré n’est pas une preuve de disponibilité du serveur SMTP.
+Les alertes vérifient seulement la présence des valeurs de configuration,
+pas la livraison effective. Aucun nouveau service d’onboarding ni dépendance
+de transport n’est ajouté.
