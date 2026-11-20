@@ -1,7 +1,9 @@
 {
     "schema": 1,
     "name": "Mails",
-    "dependencies": {},
+    "dependencies": {
+        "settings": "*"
+    },
     "tables": [],
     "components": {
         "back": "back",

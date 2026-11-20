@@ -5,7 +5,33 @@ declare(strict_types=1);
 namespace SymSvel\Module\Mails;
 
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use SymSvel\Module\Mails\Service\MailsSettingDefinitionProvider;
+use SymSvel\Module\Mails\Mail\MailTemplateRegistry;
+use SymSvel\Module\Mails\Mail\RegisteredMailRenderer;
+use SymSvel\Module\Mails\Mail\MailSender;
+use SymSvel\Module\Mails\Mail\ConfiguredMailSender;
+use SymSvel\Module\Mails\Mail\MailTransportCatalog;
+use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 
 final class MailsBundle extends AbstractBundle
 {
+    public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
+    {
+        $builder->register(MailTransportCatalog::class, MailTransportCatalog::class)
+            ->setArgument('$providers', new TaggedIteratorArgument('symsvel.mails.transport_provider'));
+        $builder->register(MailsSettingDefinitionProvider::class, MailsSettingDefinitionProvider::class)
+            ->setAutowired(true)
+            ->setAutoconfigured(true)
+            ->addTag('symsvel.settings.definition_provider');
+        $builder->register(MailTemplateRegistry::class, MailTemplateRegistry::class)
+            ->setAutowired(true);
+        $builder->register(RegisteredMailRenderer::class, RegisteredMailRenderer::class)
+            ->setAutowired(true);
+        $builder->register(MailSender::class, MailSender::class)
+            ->setAutowired(true);
+        $builder->register(ConfiguredMailSender::class, ConfiguredMailSender::class)
+            ->setAutowired(true);
+    }
 }
