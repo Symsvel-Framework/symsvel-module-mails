@@ -18,16 +18,16 @@ jobs:
         run: |
           php -v
           php -r 'if (PHP_VERSION_ID < 80400 || PHP_VERSION_ID >= 80500) { exit(1); }'
-      - name: Install private Composer dependencies
+      - name: Install public Composer dependencies
         env:
-          SYMSVEL_READ_TOKEN: ${{ secrets.SYMSVEL_READ_TOKEN }}
+          SYMSVEL_READ_TOKEN: ${{ github.token }}
         run: |
           test -n "$SYMSVEL_READ_TOKEN"
           if ! curl --fail --silent --show-error --output /dev/null \
               --header "Authorization: Bearer $SYMSVEL_READ_TOKEN" \
               --header "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/Symsvel-Framework/symsvel-module-acls"; then
-            echo "::error::SYMSVEL_READ_TOKEN cannot read private repository symsvel-module-acls."
+            echo "::error::SYMSVEL_READ_TOKEN cannot read public repository symsvel-module-acls."
             exit 1
           fi
           export COMPOSER_AUTH="$(php -r 'echo json_encode(["github-oauth" => ["github.com" => getenv("SYMSVEL_READ_TOKEN")]], JSON_THROW_ON_ERROR);')"
