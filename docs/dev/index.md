@@ -142,3 +142,7 @@ et rafraîchit les alertes sur `symsvel:alerts-changed`.
 
 Les tests des définitions vérifient ce contrat ; validation restante en CI et
 CT XT avec paramètres manquants puis renseignés.
+
+## Audit des dépendances
+
+La QA PHP exécute `composer audit --locked` après installation. Aucun avis n'est exclu ; un audit vert ne remplace ni les tests ni le CT.
