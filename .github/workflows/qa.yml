@@ -32,6 +32,7 @@ jobs:
           fi
           export COMPOSER_AUTH="$(php -r 'echo json_encode(["github-oauth" => ["github.com" => getenv("SYMSVEL_READ_TOKEN")]], JSON_THROW_ON_ERROR);')"
           composer install --no-interaction --prefer-dist --no-progress
+          composer audit --locked
       - name: Lint PHP sources and tests
         run: find back/src back/tests -type f -name '*.php' -print0 | xargs -0 -r -n 1 php -l
       - run: composer qa
